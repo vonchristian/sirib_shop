@@ -1,0 +1,67 @@
+<div class="px-4 py-5">
+  <div class="flex items-center gap-x-3 px-3">
+    <span class="inline-flex items-center justify-center size-9 rounded-xl bg-teal-600 text-white font-bold">CS</span>
+    <div>
+      <p class="text-sm font-semibold text-gray-900 leading-tight"><%= current_business&.name || "CellShop" %></p>
+      <p class="text-xs text-gray-500"><%= current_business&.code %></p>
+    </div>
+  </div>
+
+  <div class="mt-6 space-y-1">
+    <%= nav_link root_path, "Dashboard", icon: icon(:home) %>
+  </div>
+
+  <p class="mt-6 mb-2 px-3 text-xs font-semibold uppercase tracking-wide text-gray-400">Catalog</p>
+  <div class="space-y-1">
+    <%= nav_link products_path, "Products", icon: icon(:box) %>
+    <%= nav_link all_variants_path, "Variants", icon: icon(:cube) %>
+    <%= nav_link categories_path, "Categories", icon: icon(:tag) %>
+    <%= nav_link stocks_path, "Stock", icon: icon(:cube) %>
+    <%= nav_link inventory_items_path, "Serialized Units", icon: icon(:receipt) %>
+  </div>
+
+  <p class="mt-6 mb-2 px-3 text-xs font-semibold uppercase tracking-wide text-gray-400">Sales</p>
+  <div class="space-y-1">
+    <%= nav_link carts_path, "Cart", icon: icon(:cart) %>
+    <%= nav_link sales_orders_path, "Sales Orders", icon: icon(:receipt) %>
+    <%= nav_link sales_returns_path, "Sales Returns", icon: icon(:arrow_left) %>
+  </div>
+
+  <p class="mt-6 mb-2 px-3 text-xs font-semibold uppercase tracking-wide text-gray-400">Purchasing</p>
+  <div class="space-y-1">
+    <%= nav_link purchase_orders_path, "Purchase Orders", icon: icon(:truck) %>
+    <%= nav_link purchase_returns_path, "Purchase Returns", icon: icon(:arrow_left) %>
+    <%= nav_link suppliers_path, "Suppliers", icon: icon(:building) %>
+  </div>
+
+  <p class="mt-6 mb-2 px-3 text-xs font-semibold uppercase tracking-wide text-gray-400">Service</p>
+  <div class="space-y-1">
+    <%= nav_link work_orders_path, "Work Orders", icon: icon(:wrench) %>
+    <%= nav_link service_assets_path, "Service Assets", icon: icon(:cube) %>
+    <%= nav_link service_asset_categories_path, "Asset Categories", icon: icon(:tag) %>
+  </div>
+
+  <p class="mt-6 mb-2 px-3 text-xs font-semibold uppercase tracking-wide text-gray-400">Operations</p>
+  <div class="space-y-1">
+    <%= nav_link transfer_orders_path, "Transfer Orders", icon: icon(:arrow_right) %>
+  </div>
+
+  <p class="mt-6 mb-2 px-3 text-xs font-semibold uppercase tracking-wide text-gray-400">POS</p>
+  <div class="space-y-1">
+    <%= nav_link cash_registers_path, "Cash Registers", icon: icon(:cash) %>
+    <%= nav_link cash_sessions_path, "Cash Sessions", icon: icon(:cash) %>
+  </div>
+
+  <p class="mt-6 mb-2 px-3 text-xs font-semibold uppercase tracking-wide text-gray-400">Accounting</p>
+  <div class="space-y-1">
+    <%= nav_link ledgers_path, "Ledgers & Accounts", icon: icon(:book) %>
+    <%= nav_link journal_entries_path, "Journal Entries", icon: icon(:receipt) %>
+  </div>
+
+  <p class="mt-6 mb-2 px-3 text-xs font-semibold uppercase tracking-wide text-gray-400">Organization</p>
+  <div class="space-y-1">
+    <%= nav_link store_locations_path, "Store Locations", icon: icon(:building) %>
+    <%= nav_link customers_path, "Customers", icon: icon(:users) %>
+    <%= nav_link users_path, "Users", icon: icon(:users) %>
+  </div>
+</div>

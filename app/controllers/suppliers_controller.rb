@@ -1,0 +1,45 @@
+class SuppliersController < ApplicationController
+  before_action :require_business_user
+  before_action :set_supplier, only: %i[show edit update]
+
+  def index
+    @suppliers = Supplier.order(:name)
+  end
+
+  def show
+  end
+
+  def new
+    @supplier = Supplier.new
+  end
+
+  def create
+    @supplier = Supplier.new(supplier_params)
+    if @supplier.save
+      redirect_to @supplier, notice: "Supplier created."
+    else
+      render :new, status: :unprocessable_entity
+    end
+  end
+
+  def edit
+  end
+
+  def update
+    if @supplier.update(supplier_params)
+      redirect_to @supplier, notice: "Supplier updated."
+    else
+      render :edit, status: :unprocessable_entity
+    end
+  end
+
+  private
+
+  def set_supplier
+    @supplier = Supplier.find(params[:id])
+  end
+
+  def supplier_params
+    params.require(:supplier).permit(:name, :supplier_type, :code, :email, :phone, :tax_identifier, :status)
+  end
+end

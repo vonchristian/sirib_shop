@@ -1,0 +1,43 @@
+<% content_for :title, @business.name %>
+
+<%= page_header @business.name, subtitle: @business.code do %>
+  <%= link_to "Edit", edit_admin_business_path(@business), class: "inline-flex items-center rounded-sm border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50" %>
+  <%= link_to "All businesses", admin_businesses_path, class: "text-sm font-medium text-gray-500 hover:text-gray-700 mt-4 sm:mt-0" %>
+<% end %>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 lg:col-span-2">
+    <h2 class="text-base font-semibold text-gray-900 mb-4">Details</h2>
+    <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
+      <%= render "detail_row", label: "Legal name", value: @business.legal_name %>
+      <%= render "detail_row", label: "Tax identifier", value: @business.tax_identifier %>
+      <%= render "detail_row", label: "Email", value: @business.email %>
+      <%= render "detail_row", label: "Phone", value: @business.phone %>
+      <%= render "detail_row", label: "Timezone", value: @business.timezone %>
+      <%= render "detail_row", label: "Currency", value: @business.currency %>
+      <%= render "detail_row", label: "Status", value: status_badge(@business) %>
+      <%= render "detail_row", label: "Created", value: l(@business.created_at, format: :short) %>
+    </dl>
+  </div>
+
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+    <h2 class="text-base font-semibold text-gray-900 mb-4">Locations</h2>
+    <% if @business.store_locations.any? %>
+      <ul class="space-y-3">
+        <% @business.store_locations.each do |location| %>
+          <li class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-gray-900"><%= location.name %></p>
+              <p class="text-xs text-gray-500"><%= location.location_type %> · <%= status_badge(location) %></p>
+            </div>
+            <% if location.is_main? %>
+              <span class="text-xs font-semibold text-teal-600">Main</span>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+    <% else %>
+      <p class="text-sm text-gray-500">No locations yet.</p>
+    <% end %>
+  </div>
+</div>

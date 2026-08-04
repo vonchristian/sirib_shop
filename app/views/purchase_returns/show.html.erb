@@ -1,0 +1,58 @@
+<% content_for :title, @purchase_return.number %>
+
+<%= page_header @purchase_return.number, subtitle: "Return for #{@purchase_return.purchase_order.number} · #{@purchase_return.store_location.name}" do %>
+  <%= link_to "All returns", purchase_returns_path, class: "text-sm font-medium text-gray-500 hover:text-gray-700" %>
+  <% if @purchase_return.open? %>
+    <%= button_to "Complete return", complete_purchase_return_path(@purchase_return), method: :post, data: { turbo_confirm: "Complete this return and send goods back to the supplier?" }, class: "inline-flex items-center rounded-sm bg-teal-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-teal-500" %>
+  <% end %>
+<% end %>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+  <div class="lg:col-span-2 space-y-6">
+    <%= card do %>
+      <div class="p-5 border-b border-gray-100 flex items-center justify-between">
+        <h2 class="text-base font-semibold text-gray-900">Return lines</h2>
+        <%= status_badge(@purchase_return) %>
+      </div>
+      <% if @purchase_return.purchase_return_lines.any? %>
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Item</th>
+              <th class="px-5 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Qty</th>
+              <th class="px-5 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Unit cost</th>
+              <th class="px-5 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Total</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            <% @purchase_return.purchase_return_lines.each do |line| %>
+              <tr>
+                <td class="px-5 py-3 text-sm font-medium text-gray-900"><%= line.product_variant.display_name %></td>
+                <td class="px-5 py-3 text-sm text-gray-600 text-right"><%= line.quantity %></td>
+                <td class="px-5 py-3 text-sm text-gray-600 text-right"><%= money(line.unit_cost_cents) %></td>
+                <td class="px-5 py-3 text-sm font-semibold text-gray-900 text-right"><%= money((line.quantity * line.unit_cost_cents).round) %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% else %>
+        <p class="p-5 text-sm text-gray-500">No lines on this return.</p>
+      <% end %>
+    <% end %>
+  </div>
+
+  <div>
+    <%= card do %>
+      <div class="p-5">
+        <h2 class="text-base font-semibold text-gray-900 mb-4">Return details</h2>
+        <dl class="space-y-3 text-sm">
+          <div class="flex justify-between"><dt class="text-gray-500">PO</dt><dd class="font-medium text-gray-900"><%= link_to @purchase_return.purchase_order.number, purchase_order_path(@purchase_return.purchase_order), class: "text-teal-600 hover:text-teal-500" %></dd></div>
+          <div class="flex justify-between"><dt class="text-gray-500">Supplier</dt><dd class="font-medium text-gray-900"><%= @purchase_return.supplier.name %></dd></div>
+          <div class="flex justify-between"><dt class="text-gray-500">Location</dt><dd class="font-medium text-gray-900"><%= @purchase_return.store_location.name %></dd></div>
+          <div class="flex justify-between"><dt class="text-gray-500">Reason</dt><dd class="font-medium text-gray-900"><%= @purchase_return.reason || "—" %></dd></div>
+          <div class="flex justify-between"><dt class="text-gray-500">Status</dt><dd><%= status_badge(@purchase_return) %></dd></div>
+        </dl>
+      </div>
+    <% end %>
+  </div>
+</div>

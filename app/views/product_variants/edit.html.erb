@@ -1,0 +1,56 @@
+<% content_for :title, "Edit #{@product_variant.display_name}" %>
+
+<%= page_header "Edit variant", subtitle: @product_variant.sku do %>
+  <%= link_to "Back", variant_path(@product_variant), class: "text-sm font-medium text-gray-500 hover:text-gray-700" %>
+<% end %>
+
+<%= form_with url: variant_path(@product_variant), method: :patch, local: true, scope: :product_variant, class: "max-w-xl" do |f| %>
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div>
+        <%= f.label :name, "Variant name", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= f.text_field :name, class: "w-full rounded-sm border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 text-sm" %>
+      </div>
+      <div>
+        <%= f.label :sku, "SKU", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= f.text_field :sku, class: "w-full rounded-sm border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 text-sm" %>
+      </div>
+      <div>
+        <%= f.label :barcode, "Barcode", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= f.text_field :barcode, class: "w-full rounded-sm border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 text-sm" %>
+      </div>
+      <div>
+        <%= f.label :unit, "Unit", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= f.text_field :unit, class: "w-full rounded-sm border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 text-sm" %>
+      </div>
+      <div>
+        <%= f.label :cost_price, "Cost price", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <div class="relative">
+          <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-sm text-gray-400">₱</span>
+          <%= f.text_field :cost_price, value: money_input_value(@product_variant.cost_price_cents), inputmode: "decimal", class: "w-full rounded-sm border-gray-300 shadow-sm pl-8 focus:border-teal-500 focus:ring-teal-500 text-sm" %>
+        </div>
+      </div>
+      <div>
+        <%= f.label :selling_price, "Selling price", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <div class="relative">
+          <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-sm text-gray-400">₱</span>
+          <%= f.text_field :selling_price, value: money_input_value(@product_variant.selling_price_cents), inputmode: "decimal", class: "w-full rounded-sm border-gray-300 shadow-sm pl-8 focus:border-teal-500 focus:ring-teal-500 text-sm" %>
+        </div>
+      </div>
+    </div>
+
+    <label class="flex items-center gap-2 text-sm text-gray-700">
+      <%= f.check_box :track_serial, class: "rounded border-gray-300 text-teal-600 focus:ring-teal-500" %>
+      Track IMEI / serial numbers for this variant
+    </label>
+
+    <div>
+      <%= f.label :status, "Status", class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= f.select :status, ProductVariant.statuses.keys.map { |k| [k.titleize, k] }, {}, class: "w-full rounded-sm border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 text-sm" %>
+    </div>
+
+    <div class="pt-2">
+      <%= f.submit "Save changes", class: "inline-flex items-center rounded-sm bg-teal-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-teal-500" %>
+    </div>
+  </div>
+<% end %>

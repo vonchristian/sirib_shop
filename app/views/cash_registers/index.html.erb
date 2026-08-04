@@ -1,0 +1,31 @@
+<% content_for :title, "Cash Registers" %>
+
+<%= page_header "Cash Registers", subtitle: "Manage register terminals" do %>
+  <%= link_to "New register", new_cash_register_path, class: "inline-flex items-center gap-x-2 rounded-sm bg-teal-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-teal-500" %>
+<% end %>
+
+<% if @cash_registers.any? %>
+  <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+    <% @cash_registers.each do |register| %>
+      <%= link_to cash_register_path(register), class: "bg-white rounded-xl border border-gray-200 shadow-sm p-5 hover:border-teal-300 hover:shadow" do %>
+        <div class="flex items-start justify-between">
+          <div>
+            <p class="text-base font-semibold text-gray-900"><%= register.name %></p>
+            <p class="text-xs text-gray-500 mt-0.5"><%= register.code %> · <%= register.store_location.name %></p>
+          </div>
+          <%= status_badge(register) %>
+        </div>
+        <div class="mt-4 text-sm text-gray-600">
+          <%= register.cash_sessions.count %> session(s)
+          <% if (open = register.cash_sessions.open_sessions.first) %>
+            · <span class="font-medium text-teal-600">Open</span>
+          <% end %>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+<% else %>
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-10 text-center">
+    <p class="text-sm text-gray-500">No cash registers yet.</p>
+  </div>
+<% end %>

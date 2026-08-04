@@ -1,0 +1,57 @@
+<% content_for :title, @product_variant.display_name %>
+
+<%= page_header @product_variant.display_name, subtitle: @product_variant.sku do %>
+  <%= link_to "All variants", all_variants_path, class: "text-sm font-medium text-gray-500 hover:text-gray-700" %>
+  <%= link_to "Edit", edit_variant_path(@product_variant), class: "inline-flex items-center rounded-sm border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50" %>
+<% end %>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+  <div class="lg:col-span-2">
+    <%= card do %>
+      <div class="p-5 border-b border-gray-100 flex items-center justify-between">
+        <h2 class="text-base font-semibold text-gray-900">Stock levels</h2>
+        <%= status_badge(@product_variant) %>
+      </div>
+      <% if @product_variant.stocks.any? %>
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Location</th>
+              <th class="px-5 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Qty</th>
+              <th class="px-5 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Reserved</th>
+              <th class="px-5 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Available</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            <% @product_variant.stocks.each do |stock| %>
+              <tr>
+                <td class="px-5 py-3 text-sm font-medium text-gray-900"><%= stock.store_location.name %></td>
+                <td class="px-5 py-3 text-sm text-gray-600 text-right"><%= stock.quantity %></td>
+                <td class="px-5 py-3 text-sm text-gray-600 text-right"><%= stock.reserved_quantity %></td>
+                <td class="px-5 py-3 text-sm font-semibold text-gray-900 text-right"><%= stock.available_quantity %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% else %>
+        <p class="p-5 text-sm text-gray-500">No stock recorded for this variant.</p>
+      <% end %>
+    <% end %>
+  </div>
+
+  <div>
+    <%= card do %>
+      <div class="p-5">
+        <h2 class="text-base font-semibold text-gray-900 mb-4">Variant details</h2>
+        <dl class="space-y-3 text-sm">
+          <div class="flex justify-between"><dt class="text-gray-500">Product</dt><dd class="font-medium text-gray-900"><%= link_to @product_variant.product.name, product_path(@product_variant.product), class: "text-teal-600 hover:text-teal-500" %></dd></div>
+          <div class="flex justify-between"><dt class="text-gray-500">SKU</dt><dd class="font-medium text-gray-900 font-mono"><%= @product_variant.sku %></dd></div>
+          <div class="flex justify-between"><dt class="text-gray-500">Cost</dt><dd class="font-medium text-gray-900"><%= money(@product_variant.cost_price_cents) %></dd></div>
+          <div class="flex justify-between"><dt class="text-gray-500">Selling price</dt><dd class="font-medium text-gray-900"><%= money(@product_variant.selling_price_cents) %></dd></div>
+          <div class="flex justify-between"><dt class="text-gray-500">Serialized</dt><dd class="font-medium text-gray-900"><%= @product_variant.track_serial? ? "Yes" : "No" %></dd></div>
+          <div class="flex justify-between"><dt class="text-gray-500">Status</dt><dd><%= status_badge(@product_variant) %></dd></div>
+        </dl>
+      </div>
+    <% end %>
+  </div>
+</div>

@@ -1,0 +1,56 @@
+<%= form_with model: [:admin, @business], class: "space-y-6" do |form| %>
+  <% if @business.errors.any? %>
+    <div class="rounded-sm bg-rose-50 border border-rose-200 p-4">
+      <h3 class="text-sm font-semibold text-rose-800"><%= pluralize(@business.errors.count, "error") %> prevented saving:</h3>
+      <ul class="mt-2 list-disc list-inside text-sm text-rose-700">
+        <% @business.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <div>
+      <%= form.label :name, class: "block text-sm font-medium text-gray-700 mb-1.5" %>
+      <%= form.text_field :name, class: "block w-full rounded-sm border-gray-300 bg-gray-50 px-3 py-2.5 text-sm focus:border-teal-500 focus:ring-teal-500" %>
+    </div>
+    <div>
+      <%= form.label :code, class: "block text-sm font-medium text-gray-700 mb-1.5" %>
+      <%= form.text_field :code, class: "block w-full rounded-sm border-gray-300 bg-gray-50 px-3 py-2.5 text-sm focus:border-teal-500 focus:ring-teal-500" %>
+    </div>
+    <div>
+      <%= form.label :legal_name, class: "block text-sm font-medium text-gray-700 mb-1.5" %>
+      <%= form.text_field :legal_name, class: "block w-full rounded-sm border-gray-300 bg-gray-50 px-3 py-2.5 text-sm focus:border-teal-500 focus:ring-teal-500" %>
+    </div>
+    <div>
+      <%= form.label :tax_identifier, class: "block text-sm font-medium text-gray-700 mb-1.5" %>
+      <%= form.text_field :tax_identifier, class: "block w-full rounded-sm border-gray-300 bg-gray-50 px-3 py-2.5 text-sm focus:border-teal-500 focus:ring-teal-500" %>
+    </div>
+    <div>
+      <%= form.label :email, class: "block text-sm font-medium text-gray-700 mb-1.5" %>
+      <%= form.email_field :email, class: "block w-full rounded-sm border-gray-300 bg-gray-50 px-3 py-2.5 text-sm focus:border-teal-500 focus:ring-teal-500" %>
+    </div>
+    <div>
+      <%= form.label :phone, class: "block text-sm font-medium text-gray-700 mb-1.5" %>
+      <%= form.text_field :phone, class: "block w-full rounded-sm border-gray-300 bg-gray-50 px-3 py-2.5 text-sm focus:border-teal-500 focus:ring-teal-500" %>
+    </div>
+    <div>
+      <%= form.label :timezone, class: "block text-sm font-medium text-gray-700 mb-1.5" %>
+      <%= form.time_zone_select :timezone, ActiveSupport::TimeZone.all, { default: "Asia/Manila" }, class: "block w-full rounded-sm border-gray-300 bg-gray-50 px-3 py-2.5 text-sm focus:border-teal-500 focus:ring-teal-500" %>
+    </div>
+    <div>
+      <%= form.label :currency, class: "block text-sm font-medium text-gray-700 mb-1.5" %>
+      <%= form.select :currency, %w[PHP USD EUR JPY], {}, class: "block w-full rounded-sm border-gray-300 bg-gray-50 px-3 py-2.5 text-sm focus:border-teal-500 focus:ring-teal-500" %>
+    </div>
+    <div>
+      <%= form.label :status, class: "block text-sm font-medium text-gray-700 mb-1.5" %>
+      <%= form.select :status, Business.statuses.keys.map { |s| [s.titleize, s] }, {}, class: "block w-full rounded-sm border-gray-300 bg-gray-50 px-3 py-2.5 text-sm focus:border-teal-500 focus:ring-teal-500" %>
+    </div>
+  </div>
+
+  <div class="flex items-center gap-3">
+    <%= form.submit "Save business", class: "inline-flex items-center rounded-sm bg-teal-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-teal-500" %>
+    <%= link_to "Cancel", admin_businesses_path, class: "text-sm font-medium text-gray-600 hover:text-gray-800" %>
+  </div>
+<% end %>

@@ -1,0 +1,46 @@
+<% content_for :title, "Serialized Units" %>
+
+<%= page_header "Serialized Units", subtitle: "IMEI / serial tracked inventory" do %>
+  <%= link_to "Stock", stocks_path, class: "text-sm font-medium text-gray-500 hover:text-gray-700" %>
+<% end %>
+
+<div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+  <div class="p-4 border-b border-gray-100 flex flex-wrap items-center gap-2">
+    <%= form_with url: inventory_items_path, method: :get, class: "flex flex-wrap items-center gap-2" do |f| %>
+      <%= f.text_field :serial, value: params[:serial], placeholder: "Search serial / IMEI...", class: "w-64 rounded-sm border-gray-300 shadow-sm text-sm" %>
+      <%= f.select :status, InventoryItem.statuses.keys.map { |k| [k.titleize, k] }, { include_blank: "All statuses" }, class: "rounded-sm border-gray-300 shadow-sm text-sm" %>
+      <%= f.submit "Filter", class: "rounded-sm bg-teal-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-teal-500" %>
+    <% end %>
+  </div>
+
+  <% if @inventory_items.any? %>
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Serial / IMEI</th>
+          <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Variant</th>
+          <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Location</th>
+          <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+          <th class="px-5 py-3"></th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        <% @inventory_items.each do |item| %>
+          <tr>
+            <td class="px-5 py-3 text-sm font-mono font-medium text-gray-900"><%= item.serial_number %></td>
+            <td class="px-5 py-3 text-sm text-gray-600">
+              <%= link_to item.product_variant.display_name, variant_path(item.product_variant), class: "hover:text-teal-600" %>
+            </td>
+            <td class="px-5 py-3 text-sm text-gray-600"><%= item.stock&.store_location&.name || "—" %></td>
+            <td class="px-5 py-3"><%= status_badge(item) %></td>
+            <td class="px-5 py-3 text-right">
+              <%= link_to "View", inventory_item_path(item), class: "text-sm font-medium text-teal-600 hover:text-teal-500" %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p class="p-10 text-sm text-gray-500 text-center">No serialized units found.</p>
+  <% end %>
+</div>

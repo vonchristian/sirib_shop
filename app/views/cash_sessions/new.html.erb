@@ -1,0 +1,24 @@
+<% content_for :title, "Open cash session" %>
+
+<%= page_header "Open cash session", subtitle: "Start a register drawer session" do %>
+  <%= link_to "Back", cash_sessions_path, class: "text-sm font-medium text-gray-500 hover:text-gray-700" %>
+<% end %>
+
+<%= form_with url: cash_sessions_path, method: :post, local: true, scope: :cash_session, class: "max-w-xl" do |f| %>
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-4">
+    <div>
+      <%= f.label :cash_register_id, "Cash register", class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= f.collection_select :cash_register_id, CashRegister.active, :id, :name, { include_blank: "Select register" }, class: "w-full rounded-sm border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 text-sm" %>
+    </div>
+    <div>
+      <%= f.label :opening_amount, "Opening float", class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <div class="relative">
+        <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-sm text-gray-400">₱</span>
+        <%= f.text_field :opening_amount, value: money_input_value(0), placeholder: "0.00", inputmode: "decimal", class: "w-full rounded-sm border-gray-300 shadow-sm pl-8 focus:border-teal-500 focus:ring-teal-500 text-sm" %>
+      </div>
+    </div>
+    <div class="pt-2">
+      <%= f.submit "Open session", class: "inline-flex items-center rounded-sm bg-teal-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-teal-500" %>
+    </div>
+  </div>
+<% end %>

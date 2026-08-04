@@ -1,0 +1,47 @@
+<% content_for :title, "New field" %>
+
+<%= page_header "New field", subtitle: "#{@category.name}" do %>
+  <%= link_to "Back", service_asset_category_path(@category), class: "text-sm font-medium text-gray-500 hover:text-gray-700" %>
+<% end %>
+
+<%= form_with url: service_asset_category_fields_path(@category), method: :post, local: true, scope: :service_asset_field, class: "max-w-xl" do |f| %>
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div>
+        <%= f.label :name, "Field name", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= f.text_field :name, placeholder: "imei_1", class: "w-full rounded-sm border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 text-sm" %>
+      </div>
+      <div>
+        <%= f.label :label, "Label", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= f.text_field :label, placeholder: "IMEI 1", class: "w-full rounded-sm border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 text-sm" %>
+      </div>
+      <div>
+        <%= f.label :data_type, "Data type", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= f.select :data_type, ServiceAssetField.data_types.keys.map { |k| [k.titleize, k] }, {}, class: "w-full rounded-sm border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 text-sm" %>
+      </div>
+      <div>
+        <%= f.label :position, "Position", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= f.number_field :position, value: 0, min: 0, class: "w-full rounded-sm border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 text-sm" %>
+      </div>
+    </div>
+
+    <div class="space-y-2">
+      <label class="flex items-center gap-2 text-sm text-gray-700">
+        <%= f.check_box :required, class: "rounded border-gray-300 text-teal-600 focus:ring-teal-500" %>
+        Required
+      </label>
+      <label class="flex items-center gap-2 text-sm text-gray-700">
+        <%= f.check_box :unique, class: "rounded border-gray-300 text-teal-600 focus:ring-teal-500" %>
+        Unique value
+      </label>
+      <label class="flex items-center gap-2 text-sm text-gray-700">
+        <%= f.check_box :active, checked: true, class: "rounded border-gray-300 text-teal-600 focus:ring-teal-500" %>
+        Active
+      </label>
+    </div>
+
+    <div class="pt-2">
+      <%= f.submit "Create field", class: "inline-flex items-center rounded-sm bg-teal-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-teal-500" %>
+    </div>
+  </div>
+<% end %>

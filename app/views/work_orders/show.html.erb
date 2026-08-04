@@ -1,0 +1,328 @@
+<% content_for :title, @work_order.number %>
+
+<%= page_header @work_order.number, subtitle: "#{@work_order.store_location.name} · #{@work_order.priority.to_s.titleize} priority" do %>
+  <%= link_to "All work orders", work_orders_path, class: "text-sm font-medium text-gray-500 hover:text-gray-700" %>
+  <span class="inline-flex items-center"><%= status_badge(@work_order) %></span>
+<% end %>
+
+<% transitions = WorkOrderWorkflowService::TRANSITIONS.fetch(@work_order.status.to_sym, []) %>
+<% if transitions.any? %>
+  <div class="mb-6 flex flex-wrap gap-2">
+    <% transitions.each do |to| %>
+      <%= button_to to.to_s.tr("_", " ").titleize, transition_work_order_path(@work_order, to: to), method: :post, data: { turbo_confirm: "Move to #{to.to_s.tr("_", " ").titleize}?" }, class: "inline-flex items-center rounded-sm border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50" %>
+    <% end %>
+  </div>
+<% end %>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+  <div class="lg:col-span-2 space-y-6">
+    <%= card do %>
+      <div class="p-5 border-b border-gray-100">
+        <div class="flex items-center justify-between">
+          <h2 class="text-base font-semibold text-gray-900">Service asset</h2>
+          <%= link_to "View asset", service_asset_path(@work_order.service_asset), class: "text-sm font-medium text-teal-600 hover:text-teal-500" %>
+        </div>
+        <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-sm mt-3">
+          <div><dt class="text-gray-500">Asset</dt><dd class="font-medium text-gray-900"><%= @work_order.service_asset.name %></dd></div>
+          <div><dt class="text-gray-500">Category</dt><dd class="font-medium text-gray-900"><%= @work_order.service_asset.service_asset_category.name %></dd></div>
+          <div><dt class="text-gray-500">Customer</dt><dd class="font-medium text-gray-900"><%= link_to @work_order.customer.name, customer_path(@work_order.customer), class: "hover:text-teal-600" %></dd></div>
+          <div><dt class="text-gray-500">Assigned to</dt><dd class="font-medium text-gray-900"><%= @work_order.assigned_user&.name || "—" %></dd></div>
+          <div><dt class="text-gray-500">Received</dt><dd class="font-medium text-gray-900"><%= l @work_order.received_at, format: :long %></dd></div>
+          <% if @work_order.promised_at %><div><dt class="text-gray-500">Promised</dt><dd class="font-medium text-gray-900"><%= l @work_order.promised_at, format: :long %></dd></div><% end %>
+        </dl>
+        <% if @work_order.complaint.present? %>
+          <div class="mt-4">
+            <h3 class="text-sm font-semibold text-gray-900 mb-1">Complaint</h3>
+            <p class="text-sm text-gray-600 whitespace-pre-wrap"><%= @work_order.complaint %></p>
+          </div>
+        <% end %>
+        <% if @work_order.diagnosis.present? %>
+          <div class="mt-4">
+            <h3 class="text-sm font-semibold text-gray-900 mb-1">Diagnosis</h3>
+            <p class="text-sm text-gray-600 whitespace-pre-wrap"><%= @work_order.diagnosis %></p>
+          </div>
+        <% end %>
+        <% if @work_order.notes.present? %>
+          <div class="mt-4">
+            <h3 class="text-sm font-semibold text-gray-900 mb-1">Notes</h3>
+            <p class="text-sm text-gray-600 whitespace-pre-wrap"><%= @work_order.notes %></p>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+
+    <%= card do %>
+      <div class="p-5 border-b border-gray-100 flex items-center justify-between">
+        <h2 class="text-base font-semibold text-gray-900">Tasks</h2>
+      </div>
+      <% if @work_order.work_order_tasks.any? %>
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Task</th>
+              <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Assigned</th>
+              <th class="px-5 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Est. mins</th>
+              <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            <% @work_order.work_order_tasks.ordered.each do |task| %>
+              <tr>
+                <td class="px-5 py-3 text-sm text-gray-900 font-medium"><%= task.description %></td>
+                <td class="px-5 py-3 text-sm text-gray-600"><%= task.assigned_user&.name || "—" %></td>
+                <td class="px-5 py-3 text-sm text-gray-600 text-right"><%= task.estimated_minutes || "—" %></td>
+                <td class="px-5 py-3"><%= status_badge(task) %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% else %>
+        <p class="p-5 text-sm text-gray-500">No tasks yet.</p>
+      <% end %>
+      <div class="p-5 border-t border-gray-100">
+        <%= form_with url: add_task_work_order_path(@work_order), method: :post, local: true, class: "flex flex-wrap items-center gap-2" do |f| %>
+          <div class="flex-1 min-w-48">
+            <input type="text" name="work_order_task[description]" required placeholder="Add a task (e.g. Replace screen)" class="w-full rounded-sm border-gray-300 shadow-sm text-sm">
+          </div>
+          <%= f.collection_select "work_order_task[assigned_user_id]", User.active, :id, :name, { include_blank: "Unassigned" }, class: "rounded-sm border-gray-300 shadow-sm text-sm" %>
+          <div class="w-28">
+            <input type="number" name="work_order_task[estimated_minutes]" placeholder="Est. mins" class="w-full rounded-sm border-gray-300 shadow-sm text-sm">
+          </div>
+          <%= f.submit "Add task", class: "rounded-sm bg-teal-600 px-3 py-2 text-sm font-semibold text-white hover:bg-teal-500" %>
+        <% end %>
+      </div>
+    <% end %>
+
+    <%= card do %>
+      <div class="p-5 border-b border-gray-100 flex items-center justify-between">
+        <h2 class="text-base font-semibold text-gray-900">Parts (estimate)</h2>
+      </div>
+      <% if @work_order.work_order_parts.any? %>
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Part</th>
+              <th class="px-5 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Qty</th>
+              <th class="px-5 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Price</th>
+              <th class="px-5 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Total</th>
+              <th class="px-5 py-3"></th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            <% @work_order.work_order_parts.each do |part| %>
+              <tr>
+                <td class="px-5 py-3 text-sm text-gray-900">
+                  <p class="font-medium"><%= part.product_variant.display_name %></p>
+                  <p class="text-xs text-gray-500"><%= part.product_variant.sku %></p>
+                </td>
+                <td class="px-5 py-3 text-sm text-gray-600 text-right"><%= part.quantity %></td>
+                <td class="px-5 py-3 text-sm text-gray-600 text-right"><%= money(part.unit_price_cents) %></td>
+                <td class="px-5 py-3 text-sm font-semibold text-gray-900 text-right"><%= money(part.total_cents) %></td>
+                <td class="px-5 py-3 text-right">
+                  <% if part.consumed? %>
+                    <span class="text-xs font-semibold text-emerald-600">Consumed</span>
+                  <% else %>
+                    <%= button_to "Consume", consume_part_work_order_path(@work_order, work_order_part_id: part.id), method: :post, data: { turbo_confirm: "Consume this part from stock?" }, class: "text-sm font-medium text-teal-600 hover:text-teal-500" %>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% else %>
+        <p class="p-5 text-sm text-gray-500">No parts estimated.</p>
+      <% end %>
+      <div class="p-5 border-t border-gray-100">
+        <%= form_with url: add_part_work_order_path(@work_order), method: :post, local: true, class: "flex flex-wrap items-center gap-2" do |f| %>
+          <%= f.collection_select "work_order_part[product_variant_id]", ProductVariant.active, :id, :display_name, { include_blank: "Select part" }, class: "rounded-sm border-gray-300 shadow-sm text-sm" %>
+          <div class="w-24">
+            <input type="number" name="work_order_part[quantity]" value="1" min="0.001" step="0.001" class="w-full rounded-sm border-gray-300 shadow-sm text-sm">
+          </div>
+          <div class="w-28">
+            <input type="text" name="work_order_part[unit_price]" placeholder="Price" inputmode="decimal" class="w-full rounded-sm border-gray-300 shadow-sm text-sm">
+          </div>
+          <%= f.submit "Add part", class: "rounded-sm bg-teal-600 px-3 py-2 text-sm font-semibold text-white hover:bg-teal-500" %>
+        <% end %>
+      </div>
+    <% end %>
+
+    <%= card do %>
+      <div class="p-5 border-b border-gray-100 flex items-center justify-between">
+        <h2 class="text-base font-semibold text-gray-900">Services</h2>
+      </div>
+      <% if @work_order.work_order_services.any? %>
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Service</th>
+              <th class="px-5 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Qty</th>
+              <th class="px-5 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Price</th>
+              <th class="px-5 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Total</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            <% @work_order.work_order_services.each do |svc| %>
+              <tr>
+                <td class="px-5 py-3 text-sm font-medium text-gray-900">
+                  <%= svc.name %>
+                  <% if svc.description.present? %><p class="text-xs text-gray-500"><%= svc.description %></p><% end %>
+                </td>
+                <td class="px-5 py-3 text-sm text-gray-600 text-right"><%= svc.quantity %></td>
+                <td class="px-5 py-3 text-sm text-gray-600 text-right"><%= money(svc.unit_price_cents) %></td>
+                <td class="px-5 py-3 text-sm font-semibold text-gray-900 text-right"><%= money(svc.total_cents) %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% else %>
+        <p class="p-5 text-sm text-gray-500">No services added.</p>
+      <% end %>
+      <div class="p-5 border-t border-gray-100">
+        <%= form_with url: add_service_work_order_path(@work_order), method: :post, local: true, class: "flex flex-wrap items-center gap-2" do |f| %>
+          <div class="flex-1 min-w-48">
+            <input type="text" name="work_order_service[name]" required placeholder="Service name" class="w-full rounded-sm border-gray-300 shadow-sm text-sm">
+          </div>
+          <div class="w-28">
+            <input type="text" name="work_order_service[unit_price]" placeholder="Price" inputmode="decimal" class="w-full rounded-sm border-gray-300 shadow-sm text-sm">
+          </div>
+          <div class="w-24">
+            <input type="number" name="work_order_service[quantity]" value="1" min="0.001" step="0.001" class="w-full rounded-sm border-gray-300 shadow-sm text-sm">
+          </div>
+          <%= f.submit "Add service", class: "rounded-sm bg-teal-600 px-3 py-2 text-sm font-semibold text-white hover:bg-teal-500" %>
+        <% end %>
+      </div>
+    <% end %>
+
+    <%= card do %>
+      <div class="p-5 border-b border-gray-100 flex items-center justify-between">
+        <h2 class="text-base font-semibold text-gray-900">Received items</h2>
+        <% if @work_order.service_items.any? %>
+          <span class="text-xs font-semibold text-gray-500"><%= @work_order.returned_item_count %>/<%= @work_order.service_items.count %> returned</span>
+        <% end %>
+      </div>
+      <% if @work_order.service_items.any? %>
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Tag</th>
+              <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Item</th>
+              <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Condition</th>
+              <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Returned</th>
+              <th class="px-5 py-3"></th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            <% @work_order.service_items.ordered.each do |item| %>
+              <tr>
+                <td class="px-5 py-3 text-sm font-mono font-medium text-gray-900"><%= item.tag_number %></td>
+                <td class="px-5 py-3 text-sm text-gray-600">
+                  <p class="font-medium text-gray-900"><%= item.name %></p>
+                  <% if item.serial_number.present? %><p class="text-xs text-gray-500">Serial: <%= item.serial_number %></p><% end %>
+                  <% if item.notes.present? %><p class="text-xs text-gray-500"><%= item.notes %></p><% end %>
+                </td>
+                <td class="px-5 py-3 text-sm text-gray-600"><%= item.condition.to_s.titleize %></td>
+                <td class="px-5 py-3 text-sm text-gray-600">
+                  <% if item.returned? %>
+                    <span class="text-emerald-600 font-medium"><%= l item.returned_at, format: :short %></span>
+                    <span class="block text-xs text-gray-500">by <%= item.returned_by_user&.name %></span>
+                  <% else %>
+                    <span class="text-gray-400">—</span>
+                  <% end %>
+                </td>
+                <td class="px-5 py-3 text-right">
+                  <% if !item.returned? %>
+                    <%= form_with url: return_item_work_order_path(@work_order, service_item_id: item.id), method: :post, local: true, class: "inline-flex items-center gap-2" do |f| %>
+                      <%= f.select :condition_at_return, ServiceItem.condition_at_returns.map { |k, _| [k.to_s.titleize, k.to_s] }, {}, class: "rounded-sm border-gray-300 shadow-sm text-xs" %>
+                      <%= f.submit "Return", data: { turbo_confirm: "Confirm this item is returned?" }, class: "text-sm font-medium text-teal-600 hover:text-teal-500" %>
+                    <% end %>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% else %>
+        <p class="p-5 text-sm text-gray-500">No items received yet.</p>
+      <% end %>
+      <div class="p-5 border-t border-gray-100">
+        <%= form_with url: receive_item_work_order_path(@work_order), method: :post, local: true, class: "space-y-3" do |f| %>
+          <div class="grid grid-cols-1 sm:grid-cols-4 gap-2">
+            <div class="sm:col-span-2">
+              <input type="text" name="service_item[name]" required placeholder="Item (e.g. Power adapter, Mouse, Laptop bag)" class="w-full rounded-sm border-gray-300 shadow-sm text-sm">
+            </div>
+            <div>
+              <input type="text" name="service_item[serial_number]" placeholder="Serial (optional)" class="w-full rounded-sm border-gray-300 shadow-sm text-sm">
+            </div>
+            <%= f.select :condition, ServiceItem.conditions.map { |k, _| [k.titleize, k] }, {}, class: "rounded-sm border-gray-300 shadow-sm text-sm" %>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <input type="text" name="service_item[notes]" placeholder="Condition notes (optional)" class="flex-1 min-w-48 rounded-sm border-gray-300 shadow-sm text-sm">
+            <%= f.submit "Tag & receive item", class: "rounded-sm bg-teal-600 px-3 py-2 text-sm font-semibold text-white hover:bg-teal-500" %>
+          </div>
+        <% end %>
+        <p class="text-xs text-gray-500 mt-2">Items received with the asset are tagged <%= "#{@work_order.number}-NN" %> and must be returned at release.</p>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="space-y-6">
+    <%= card do %>
+      <div class="p-5">
+        <h2 class="text-base font-semibold text-gray-900 mb-4">Charges</h2>
+        <% if @work_order.charges.any? %>
+          <ul class="divide-y divide-gray-100">
+            <% @work_order.charges.each do |charge| %>
+              <li class="py-2 flex justify-between text-sm gap-3">
+                <span class="text-gray-700"><%= charge.description %> <span class="text-xs text-gray-400">× <%= charge.quantity %></span></span>
+                <span class="font-medium text-gray-900"><%= money(charge.amount_cents) %></span>
+              </li>
+            <% end %>
+          </ul>
+        <% else %>
+          <p class="text-sm text-gray-500">No charges yet.</p>
+        <% end %>
+        <div class="border-t border-gray-100 mt-3 pt-3 flex justify-between text-sm">
+          <dt class="text-gray-500 font-medium">Total</dt>
+          <dd class="font-bold text-gray-900"><%= money(@work_order.total_cents) %></dd>
+        </div>
+      </div>
+      <div class="p-5 border-t border-gray-100">
+        <%= form_with url: add_charge_work_order_path(@work_order), method: :post, local: true, class: "space-y-2" do |f| %>
+          <div>
+            <input type="text" name="charge[description]" required placeholder="Charge (e.g. Diagnostic)" class="w-full rounded-sm border-gray-300 shadow-sm text-sm">
+          </div>
+          <div class="flex gap-2">
+            <input type="text" name="charge[unit_price]" placeholder="Price" inputmode="decimal" class="w-1/2 rounded-sm border-gray-300 shadow-sm text-sm">
+            <input type="number" name="charge[quantity]" value="1" min="0.001" step="0.001" class="w-1/2 rounded-sm border-gray-300 shadow-sm text-sm">
+          </div>
+          <%= f.submit "Add charge", class: "w-full rounded-sm bg-teal-600 px-3 py-2 text-sm font-semibold text-white hover:bg-teal-500" %>
+        <% end %>
+      </div>
+    <% end %>
+
+    <%= card do %>
+      <div class="p-5">
+        <h2 class="text-base font-semibold text-gray-900 mb-4">Return checklist</h2>
+        <% if @work_order.service_items.any? %>
+          <ul class="space-y-2">
+            <% @work_order.service_items.ordered.each do |item| %>
+              <li class="flex items-start gap-2 text-sm">
+                <% if item.returned? %>
+                  <span class="inline-flex items-center justify-center size-5 rounded bg-emerald-100 text-emerald-600">✓</span>
+                <% else %>
+                  <span class="inline-flex items-center justify-center size-5 rounded border border-gray-300 text-gray-300">✓</span>
+                <% end %>
+                <span class="<%= item.returned? ? "text-gray-500 line-through" : "text-gray-900" %>"><%= item.tag_number %> · <%= item.name %></span>
+              </li>
+            <% end %>
+          </ul>
+        <% else %>
+          <p class="text-sm text-gray-500">Nothing to return — no items were received.</p>
+        <% end %>
+        <% if @work_order.ready_for_release? && !@work_order.all_items_returned? %>
+          <p class="mt-3 text-xs font-medium text-amber-600">Return all items before releasing the work order.</p>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>

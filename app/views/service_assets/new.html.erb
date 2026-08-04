@@ -1,0 +1,49 @@
+<% content_for :title, "New service asset" %>
+
+<%= page_header "New service asset", subtitle: "Record a customer-owned device or vehicle" do %>
+  <%= link_to "Back", service_assets_path, class: "text-sm font-medium text-gray-500 hover:text-gray-700" %>
+<% end %>
+
+<%= form_with url: service_assets_path, method: :post, local: true, scope: :service_asset, class: "max-w-2xl" do |f| %>
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-5" data-controller="category-fields">
+    <div>
+      <h2 class="text-base font-semibold text-gray-900 mb-3">Asset</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <%= f.label :customer_id, "Customer", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.collection_select :customer_id, current_business.customers.active.order(:name), :id, :name, { include_blank: "Select customer" }, required: true, class: "w-full rounded-sm border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 text-sm" %>
+        </div>
+        <div>
+          <%= f.label :service_asset_category_id, "Category", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.collection_select :service_asset_category_id, ServiceAssetCategory.active.order(:name), :id, :name, { include_blank: "Select category" }, required: true, data: { category_select: true }, class: "w-full rounded-sm border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 text-sm" %>
+        </div>
+        <div class="sm:col-span-2">
+          <%= f.label :name, "Name", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.text_field :name, placeholder: "e.g. iPhone 16 Pro, Honda Click 160, Toyota Vios", class: "w-full rounded-sm border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 text-sm" %>
+        </div>
+      </div>
+    </div>
+
+    <% ServiceAssetCategory.active.order(:name).each do |category| %>
+      <% fields = category.service_asset_fields.active.ordered %>
+      <% next if fields.empty? %>
+      <div data-category-fields-target="group" data-category-id="<%= category.id %>" <%= "hidden" unless @service_asset.service_asset_category_id == category.id %>>
+        <h2 class="text-base font-semibold text-gray-900 mb-3">Identifiers — <%= category.name %></h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <% fields.each do |field| %>
+            <div>
+              <label for="service_asset_value_<%= field.id %>" class="block text-sm font-medium text-gray-700 mb-1">
+                <%= field.label %><%= " *" if field.required %>
+              </label>
+              <%= render "value_input", field: field, name: "service_asset_values[#{field.id}]", input_id: "service_asset_value_#{field.id}", value: nil %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <div class="pt-2">
+      <%= f.submit "Create service asset", class: "inline-flex items-center rounded-sm bg-teal-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-teal-500" %>
+    </div>
+  </div>
+<% end %>

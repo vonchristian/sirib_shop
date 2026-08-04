@@ -1,0 +1,11 @@
+<% case field.data_type %>
+<% when "text", "integer", "decimal" %>
+  <input type="text" name="<%= name %>" id="<%= input_id %>" value="<%= value %>" inputmode="<%= field.data_type == "decimal" ? "decimal" : "text" %>" class="w-full rounded-sm border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 text-sm">
+<% when "date" %>
+  <input type="date" name="<%= name %>" id="<%= input_id %>" value="<%= value %>" class="w-full rounded-sm border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 text-sm">
+<% when "boolean" %>
+  <select name="<%= name %>" id="<%= input_id %>" class="w-full rounded-sm border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 text-sm">
+    <option value="0">No</option>
+    <option value="1" <%= "selected" if value == true %>>Yes</option>
+  </select>
+<% end %>

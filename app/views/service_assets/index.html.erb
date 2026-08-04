@@ -1,0 +1,46 @@
+<% content_for :title, "Service Assets" %>
+
+<%= page_header "Service Assets", subtitle: "Customer-owned devices and vehicles brought in for service" do %>
+  <%= link_to "New service asset", new_service_asset_path, class: "inline-flex items-center gap-x-2 rounded-sm bg-teal-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-teal-500" %>
+<% end %>
+
+<div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+  <div class="p-4 border-b border-gray-100">
+    <%= form_with url: service_assets_path, method: :get, class: "flex flex-wrap items-center gap-2" do |f| %>
+      <%= f.text_field :q, value: params[:q], placeholder: "Search by name or IMEI / serial...", class: "w-72 rounded-sm border-gray-300 shadow-sm text-sm" %>
+      <%= f.collection_select :service_asset_category_id, ServiceAssetCategory.active.order(:name), :id, :name, { include_blank: "All categories" }, class: "rounded-sm border-gray-300 shadow-sm text-sm" %>
+      <%= f.submit "Search", class: "rounded-sm bg-teal-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-teal-500" %>
+    <% end %>
+  </div>
+
+  <% if @service_assets.any? %>
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Asset</th>
+          <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Category</th>
+          <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Customer</th>
+          <th class="px-5 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Work orders</th>
+          <th class="px-5 py-3"></th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        <% @service_assets.each do |asset| %>
+          <tr>
+            <td class="px-5 py-3 text-sm font-medium text-gray-900">
+              <%= link_to asset.name, service_asset_path(asset), class: "hover:text-teal-600" %>
+            </td>
+            <td class="px-5 py-3 text-sm text-gray-600"><%= asset.service_asset_category.name %></td>
+            <td class="px-5 py-3 text-sm text-gray-600"><%= asset.customer.name %></td>
+            <td class="px-5 py-3 text-sm text-gray-600 text-right"><%= asset.work_orders.count %></td>
+            <td class="px-5 py-3 text-right">
+              <%= link_to "View", service_asset_path(asset), class: "text-sm font-medium text-teal-600 hover:text-teal-500" %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p class="p-10 text-sm text-gray-500 text-center">No service assets found.</p>
+  <% end %>
+</div>

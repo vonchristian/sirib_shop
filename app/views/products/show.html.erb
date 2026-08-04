@@ -1,0 +1,65 @@
+<% content_for :title, @product.name %>
+
+<%= page_header @product.name, subtitle: @product.brand do %>
+  <%= link_to "All products", products_path, class: "text-sm font-medium text-gray-500 hover:text-gray-700" %>
+  <%= link_to "Edit", edit_product_path(@product), class: "inline-flex items-center rounded-sm border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50" %>
+  <%= link_to "New variant", new_product_variant_path(@product), class: "inline-flex items-center rounded-sm bg-teal-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-teal-500" %>
+<% end %>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+  <div class="lg:col-span-2">
+    <%= card do %>
+      <div class="p-5 border-b border-gray-100 flex items-center justify-between">
+        <h2 class="text-base font-semibold text-gray-900">Variants</h2>
+        <%= status_badge(@product) %>
+      </div>
+      <% if @product.variants.any? %>
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Variant</th>
+              <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">SKU</th>
+              <th class="px-5 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Cost</th>
+              <th class="px-5 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Price</th>
+              <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            <% @product.variants.each do |variant| %>
+              <tr>
+                <td class="px-5 py-3 text-sm font-medium text-gray-900">
+                  <%= link_to variant.name, variant_path(variant), class: "hover:text-teal-600" %>
+                  <% if variant.track_serial? %>
+                    <span class="ml-2 inline-flex items-center rounded-full bg-violet-50 px-2 py-0.5 text-xs font-semibold text-violet-700">Serialized</span>
+                  <% end %>
+                </td>
+                <td class="px-5 py-3 text-sm font-mono text-gray-600"><%= variant.sku %></td>
+                <td class="px-5 py-3 text-sm text-gray-600 text-right"><%= money(variant.cost_price_cents) %></td>
+                <td class="px-5 py-3 text-sm font-semibold text-gray-900 text-right"><%= money(variant.selling_price_cents) %></td>
+                <td class="px-5 py-3"><%= status_badge(variant) %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% else %>
+        <p class="p-5 text-sm text-gray-500">No variants yet.</p>
+      <% end %>
+    <% end %>
+  </div>
+
+  <div>
+    <%= card do %>
+      <div class="p-5">
+        <h2 class="text-base font-semibold text-gray-900 mb-4">Product details</h2>
+        <dl class="space-y-3 text-sm">
+          <div class="flex justify-between"><dt class="text-gray-500">Brand</dt><dd class="font-medium text-gray-900"><%= @product.brand || "—" %></dd></div>
+          <div class="flex justify-between"><dt class="text-gray-500">Category</dt><dd class="font-medium text-gray-900"><%= @product.category&.name || "—" %></dd></div>
+          <div class="flex justify-between"><dt class="text-gray-500">Status</dt><dd><%= status_badge(@product) %></dd></div>
+        </dl>
+        <% if @product.description.present? %>
+          <p class="mt-4 text-sm text-gray-600 whitespace-pre-wrap"><%= @product.description %></p>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>

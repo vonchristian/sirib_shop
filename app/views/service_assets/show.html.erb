@@ -1,0 +1,73 @@
+<% content_for :title, @service_asset.name %>
+
+<%= page_header @service_asset.name, subtitle: "#{@service_asset.service_asset_category.name} · #{@service_asset.customer.name}" do %>
+  <%= link_to "All service assets", service_assets_path, class: "text-sm font-medium text-gray-500 hover:text-gray-700" %>
+  <%= link_to "New work order", new_work_order_path(work_order: { service_asset_id: @service_asset.id }), class: "inline-flex items-center rounded-sm bg-teal-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-teal-500" %>
+<% end %>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+  <div class="lg:col-span-2">
+    <%= card do %>
+      <div class="p-5 border-b border-gray-100">
+        <h2 class="text-base font-semibold text-gray-900">Service history</h2>
+      </div>
+      <% if @work_orders.any? %>
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">WO</th>
+              <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Received</th>
+              <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Complaint</th>
+              <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+              <th class="px-5 py-3"></th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            <% @work_orders.each do |wo| %>
+              <tr>
+                <td class="px-5 py-3 text-sm font-medium text-gray-900">
+                  <%= link_to wo.number, work_order_path(wo), class: "hover:text-teal-600" %>
+                </td>
+                <td class="px-5 py-3 text-sm text-gray-600"><%= l wo.received_at, format: :short %></td>
+                <td class="px-5 py-3 text-sm text-gray-600 max-w-xs truncate"><%= wo.complaint %></td>
+                <td class="px-5 py-3"><%= status_badge(wo) %></td>
+                <td class="px-5 py-3 text-right">
+                  <%= link_to "View", work_order_path(wo), class: "text-sm font-medium text-teal-600 hover:text-teal-500" %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% else %>
+        <p class="p-5 text-sm text-gray-500">No work orders for this asset yet.</p>
+      <% end %>
+    <% end %>
+  </div>
+
+  <div>
+    <%= card do %>
+      <div class="p-5">
+        <h2 class="text-base font-semibold text-gray-900 mb-4">Asset details</h2>
+        <dl class="space-y-3 text-sm">
+          <div class="flex justify-between"><dt class="text-gray-500">Name</dt><dd class="font-medium text-gray-900"><%= @service_asset.name %></dd></div>
+          <div class="flex justify-between"><dt class="text-gray-500">Category</dt><dd class="font-medium text-gray-900"><%= @service_asset.service_asset_category.name %></dd></div>
+          <div class="flex justify-between"><dt class="text-gray-500">Customer</dt><dd class="font-medium text-gray-900"><%= link_to @service_asset.customer.name, customer_path(@service_asset.customer), class: "hover:text-teal-600" %></dd></div>
+        </dl>
+
+        <h3 class="text-sm font-semibold text-gray-900 mt-5 mb-2">Identifiers</h3>
+        <% if @service_asset.service_asset_values.any? %>
+          <dl class="space-y-2 text-sm">
+            <% @service_asset.service_asset_values.includes(:service_asset_field).each do |value| %>
+              <div class="flex justify-between gap-3">
+                <dt class="text-gray-500"><%= value.service_asset_field.label %></dt>
+                <dd class="font-medium text-gray-900"><%= format_asset_value(value) %></dd>
+              </div>
+            <% end %>
+          </dl>
+        <% else %>
+          <p class="text-sm text-gray-500">No identifiers recorded.</p>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>

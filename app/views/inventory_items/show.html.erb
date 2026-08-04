@@ -1,0 +1,28 @@
+<% content_for :title, "Unit #{@inventory_item.serial_number}" %>
+
+<%= page_header "Unit #{@inventory_item.serial_number}", subtitle: @inventory_item.product_variant.display_name do %>
+  <%= link_to "All units", inventory_items_path, class: "text-sm font-medium text-gray-500 hover:text-gray-700" %>
+<% end %>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+  <div class="lg:col-span-2">
+    <%= card do %>
+      <div class="p-5 border-b border-gray-100 flex items-center justify-between">
+        <h2 class="text-base font-semibold text-gray-900">Unit details</h2>
+        <%= status_badge(@inventory_item) %>
+      </div>
+      <dl class="p-5 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-sm">
+        <div><dt class="text-gray-500">Serial</dt><dd class="font-medium font-mono text-gray-900"><%= @inventory_item.serial_number %></dd></div>
+        <div><dt class="text-gray-500">IMEI 1</dt><dd class="font-medium font-mono text-gray-900"><%= @inventory_item.imei_1 || "—" %></dd></div>
+        <div><dt class="text-gray-500">IMEI 2</dt><dd class="font-medium font-mono text-gray-900"><%= @inventory_item.imei_2 || "—" %></dd></div>
+        <div><dt class="text-gray-500">Variant</dt><dd class="font-medium text-gray-900"><%= link_to @inventory_item.product_variant.display_name, variant_path(@inventory_item.product_variant), class: "text-teal-600 hover:text-teal-500" %></dd></div>
+        <div><dt class="text-gray-500">Location</dt><dd class="font-medium text-gray-900"><%= @inventory_item.stock&.store_location&.name || "—" %></dd></div>
+        <div><dt class="text-gray-500">Received</dt><dd class="font-medium text-gray-900"><%= @inventory_item.received_at ? l(@inventory_item.received_at, format: :short) : "—" %></dd></div>
+        <div><dt class="text-gray-500">Status</dt><dd><%= status_badge(@inventory_item) %></dd></div>
+        <% if @inventory_item.sold_at %>
+          <div><dt class="text-gray-500">Sold</dt><dd class="font-medium text-gray-900"><%= l @inventory_item.sold_at, format: :short %></dd></div>
+        <% end %>
+      </dl>
+    <% end %>
+  </div>
+</div>

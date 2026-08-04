@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title><%= content_for(:title) || "CellShop" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= yield :head %>
+    <link rel="icon" href="/icon.png" type="image/png">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body class="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-10">
+    <div class="w-full max-w-md">
+      <div class="mb-8 text-center">
+        <span class="inline-flex items-center justify-center size-12 rounded-xl bg-teal-600 text-white font-bold text-lg">CS</span>
+        <h1 class="mt-4 text-2xl font-bold text-gray-900">CellShop</h1>
+        <p class="text-sm text-gray-500 mt-1">Shop sales, inventory & repairs</p>
+      </div>
+
+      <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 sm:p-8">
+        <%= render "layouts/flashes" %>
+        <%= yield %>
+      </div>
+    </div>
+  </body>
+</html>

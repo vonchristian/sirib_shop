@@ -1,0 +1,44 @@
+<% content_for :title, "Cash Sessions" %>
+
+<%= page_header "Cash Sessions", subtitle: "Manage register drawer sessions" do %>
+  <%= link_to "Open session", new_cash_session_path, class: "inline-flex items-center gap-x-2 rounded-sm bg-teal-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-teal-500" %>
+<% end %>
+
+<% if @cash_sessions.any? %>
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Register</th>
+          <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">User</th>
+          <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Opened</th>
+          <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Closed</th>
+          <th class="px-5 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Opening</th>
+          <th class="px-5 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Expected</th>
+          <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+          <th class="px-5 py-3"></th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        <% @cash_sessions.each do |session| %>
+          <tr>
+            <td class="px-5 py-3 text-sm font-medium text-gray-900"><%= session.cash_register.name %></td>
+            <td class="px-5 py-3 text-sm text-gray-600"><%= session.user.name %></td>
+            <td class="px-5 py-3 text-sm text-gray-600"><%= l session.opened_at, format: :short %></td>
+            <td class="px-5 py-3 text-sm text-gray-600"><%= session.closed_at ? l(session.closed_at, format: :short) : "—" %></td>
+            <td class="px-5 py-3 text-sm text-gray-600 text-right"><%= money(session.opening_amount_cents) %></td>
+            <td class="px-5 py-3 text-sm text-gray-600 text-right"><%= session.expected_closing_amount_cents ? money(session.expected_closing_amount_cents) : "—" %></td>
+            <td class="px-5 py-3"><%= status_badge(session) %></td>
+            <td class="px-5 py-3 text-right">
+              <%= link_to "View", cash_session_path(session), class: "text-sm font-medium text-teal-600 hover:text-teal-500" %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% else %>
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-10 text-center">
+    <p class="text-sm text-gray-500">No cash sessions yet.</p>
+  </div>
+<% end %>

@@ -1,0 +1,62 @@
+<% content_for :title, @stock.product_variant.display_name %>
+
+<%= page_header @stock.product_variant.display_name, subtitle: "#{@stock.store_location.name} · SKU #{@stock.product_variant.sku}" do %>
+  <%= link_to "All stock", stocks_path, class: "text-sm font-medium text-gray-500 hover:text-gray-700" %>
+<% end %>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+  <div class="lg:col-span-2">
+    <%= card do %>
+      <div class="p-5 border-b border-gray-100 flex items-center justify-between">
+        <h2 class="text-base font-semibold text-gray-900">Movement history</h2>
+      </div>
+      <% if @stock.line_items.any? %>
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</th>
+              <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Type</th>
+              <th class="px-5 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Qty</th>
+              <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Reference</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            <% @stock.line_items.order(occurred_at: :desc).limit(50).each do |line| %>
+              <tr>
+                <td class="px-5 py-3 text-sm text-gray-600"><%= l line.occurred_at, format: :short %></td>
+                <td class="px-5 py-3 text-sm font-medium text-gray-900"><%= enum_label(line, :movement_type) %></td>
+                <td class="px-5 py-3 text-sm <%= line.quantity.positive? ? "text-emerald-600 font-semibold" : "text-rose-600 font-semibold" %> text-right"><%= line.quantity.to_f %></td>
+                <td class="px-5 py-3 text-sm text-gray-600">
+                  <% if line.reference.present? %>
+                    <%= line.reference.class.name %>
+                    <% if line.reference.respond_to?(:number) %>
+                      <%= link_to line.reference.number, polymorphic_path(line.reference), class: "text-teal-600 hover:text-teal-500" %>
+                    <% end %>
+                  <% else %>
+                    —
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% else %>
+        <p class="p-5 text-sm text-gray-500">No movements yet.</p>
+      <% end %>
+    <% end %>
+  </div>
+
+  <div>
+    <%= card do %>
+      <div class="p-5">
+        <h2 class="text-base font-semibold text-gray-900 mb-4">Stock summary</h2>
+        <dl class="space-y-3 text-sm">
+          <div class="flex justify-between"><dt class="text-gray-500">Location</dt><dd class="font-medium text-gray-900"><%= @stock.store_location.name %></dd></div>
+          <div class="flex justify-between"><dt class="text-gray-500">Quantity</dt><dd class="font-medium text-gray-900"><%= @stock.quantity %></dd></div>
+          <div class="flex justify-between"><dt class="text-gray-500">Reserved</dt><dd class="font-medium text-gray-900"><%= @stock.reserved_quantity %></dd></div>
+          <div class="flex justify-between"><dt class="text-gray-500">Available</dt><dd class="font-bold text-gray-900"><%= @stock.available_quantity %></dd></div>
+        </dl>
+      </div>
+    <% end %>
+  </div>
+</div>

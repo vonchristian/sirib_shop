@@ -1,0 +1,52 @@
+<% content_for :title, "Sales Orders" %>
+
+<%= page_header "Sales Orders", subtitle: "Track and fulfill customer orders" do %>
+  <%= link_to "New cart", new_cart_path, class: "inline-flex items-center gap-x-2 rounded-sm bg-teal-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-teal-500" %>
+<% end %>
+
+<% if @sales_orders.any? %>
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+    <div class="p-4 border-b border-gray-100">
+      <div class="flex flex-wrap items-center gap-2">
+        <% [nil, :draft, :confirmed, :fulfilled, :completed, :cancelled].each do |status| %>
+          <% active = params[:status].blank? ? status.nil? : params[:status] == status.to_s %>
+          <%= link_to (status || "All").to_s.titleize, sales_orders_path(status: status), class: "inline-flex items-center rounded-full px-3 py-1 text-sm font-medium #{active ? "bg-teal-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}" %>
+        <% end %>
+      </div>
+    </div>
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Order</th>
+          <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Customer</th>
+          <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Location</th>
+          <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</th>
+          <th class="px-5 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Total</th>
+          <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+          <th class="px-5 py-3"></th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        <% @sales_orders.each do |order| %>
+          <tr>
+            <td class="px-5 py-3 text-sm font-medium text-gray-900">
+              <%= link_to order.number, sales_order_path(order), class: "hover:text-teal-600" %>
+            </td>
+            <td class="px-5 py-3 text-sm text-gray-600"><%= order.customer&.name || "Walk-in" %></td>
+            <td class="px-5 py-3 text-sm text-gray-600"><%= order.store_location.name %></td>
+            <td class="px-5 py-3 text-sm text-gray-600"><%= l(order.ordered_at, format: :short) %></td>
+            <td class="px-5 py-3 text-sm font-semibold text-gray-900 text-right"><%= money(order.total_cents) %></td>
+            <td class="px-5 py-3"><%= status_badge(order) %></td>
+            <td class="px-5 py-3 text-right">
+              <%= link_to "View", sales_order_path(order), class: "text-sm font-medium text-teal-600 hover:text-teal-500" %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% else %>
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-10 text-center">
+    <p class="text-sm text-gray-500">No sales orders yet. Start by creating a cart.</p>
+  </div>
+<% end %>

@@ -1,0 +1,45 @@
+<% content_for :title, "Edit #{@store_location.name}" %>
+
+<%= page_header "Edit location", subtitle: @store_location.code do %>
+  <%= link_to "Back", store_location_path(@store_location), class: "text-sm font-medium text-gray-500 hover:text-gray-700" %>
+<% end %>
+
+<%= form_with url: store_location_path(@store_location), method: :patch, local: true, scope: :store_location, class: "max-w-xl" do |f| %>
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div>
+        <%= f.label :name, "Name", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= f.text_field :name, class: "w-full rounded-sm border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 text-sm" %>
+      </div>
+      <div>
+        <%= f.label :code, "Code", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= f.text_field :code, class: "w-full rounded-sm border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 text-sm" %>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div>
+        <%= f.label :location_type, "Type", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= f.select :location_type, StoreLocation.location_types.keys.map { |k| [k.titleize, k] }, {}, class: "w-full rounded-sm border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 text-sm" %>
+      </div>
+      <div>
+        <%= f.label :status, "Status", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= f.select :status, StoreLocation.statuses.keys.map { |k| [k.titleize, k] }, {}, class: "w-full rounded-sm border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 text-sm" %>
+      </div>
+    </div>
+
+    <div>
+      <%= f.label :address, "Address", class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= f.text_area :address, rows: 2, class: "w-full rounded-sm border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 text-sm" %>
+    </div>
+
+    <label class="flex items-center gap-2 text-sm text-gray-700">
+      <%= f.check_box :is_main, class: "rounded border-gray-300 text-teal-600 focus:ring-teal-500" %>
+      Main receiving location
+    </label>
+
+    <div class="pt-2">
+      <%= f.submit "Save changes", class: "inline-flex items-center rounded-sm bg-teal-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-teal-500" %>
+    </div>
+  </div>
+<% end %>

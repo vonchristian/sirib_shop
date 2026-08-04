@@ -1,0 +1,18 @@
+<%= content_tag(:div, class: "lg:w-64 lg:shrink-0") do %>
+  <div class="hidden lg:block lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto lg:border-r lg:border-gray-200 lg:bg-white">
+    <%= render "layouts/sidebar_inner" %>
+  </div>
+
+  <div id="mobile-sidebar" class="hs-overlay hs-overlay-open:translate-x-0 -translate-x-full transition-all duration-300 hidden lg:hidden fixed top-0 start-0 z-[80] h-screen w-72 bg-white border-e border-gray-200" data-hs-overlay-options='{"overlayClass":"hs-overlay-backdrop bg-gray-900/50 hs-overlay-backdrop-open:opacity-100","overlayBodyScroll":false}'>
+    <div class="flex items-center justify-between px-4 py-3 border-b border-gray-200">
+      <span class="font-semibold text-gray-900">CellShop</span>
+      <button type="button" class="size-8 inline-flex justify-center items-center gap-x-2 rounded-full border border-transparent text-gray-500 hover:bg-gray-100" data-hs-overlay="#mobile-sidebar">
+        <span class="sr-only">Close</span>
+        <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
+      </button>
+    </div>
+    <div class="overflow-y-auto h-[calc(100%-57px)]">
+      <%= render "layouts/sidebar_inner" %>
+    </div>
+  </div>
+<% end %>

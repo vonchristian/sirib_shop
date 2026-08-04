@@ -1,0 +1,35 @@
+<% content_for :title, "Businesses" %>
+
+<%= page_header "Businesses", subtitle: "Manage platform tenants" do %>
+  <%= link_to "New business", new_admin_business_path, class: "inline-flex items-center gap-x-2 rounded-sm bg-teal-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-teal-500" %>
+<% end %>
+
+<div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+  <table class="min-w-full divide-y divide-gray-200">
+    <thead class="bg-gray-50">
+      <tr>
+        <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Business</th>
+        <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Code</th>
+        <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Email</th>
+        <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+        <th class="px-5 py-3"></th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-100">
+      <% @businesses.each do |business| %>
+        <tr>
+          <td class="px-5 py-3">
+            <p class="text-sm font-medium text-gray-900"><%= link_to business.name, admin_business_path(business), class: "hover:text-teal-600" %></p>
+            <p class="text-xs text-gray-500"><%= business.legal_name %></p>
+          </td>
+          <td class="px-5 py-3 text-sm text-gray-600"><%= business.code %></td>
+          <td class="px-5 py-3 text-sm text-gray-600"><%= business.email %></td>
+          <td class="px-5 py-3"><%= status_badge(business) %></td>
+          <td class="px-5 py-3 text-right">
+            <%= link_to "Edit", edit_admin_business_path(business), class: "text-sm font-medium text-teal-600 hover:text-teal-500" %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

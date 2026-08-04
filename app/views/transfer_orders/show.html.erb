@@ -1,0 +1,66 @@
+<% content_for :title, @transfer_order.number %>
+
+<%= page_header @transfer_order.number, subtitle: "#{@transfer_order.origin_store_location.name} → #{@transfer_order.destination_store_location.name}" do %>
+  <%= link_to "All transfers", transfer_orders_path, class: "text-sm font-medium text-gray-500 hover:text-gray-700" %>
+  <% if @transfer_order.draft? %>
+    <%= button_to "Cancel", cancel_transfer_order_path(@transfer_order), method: :post, data: { turbo_confirm: "Cancel this transfer?" }, class: "inline-flex items-center rounded-sm border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50" %>
+    <%= button_to "Approve", approve_transfer_order_path(@transfer_order), method: :post, class: "inline-flex items-center rounded-sm bg-teal-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-teal-500" %>
+  <% end %>
+  <% if @transfer_order.approved? %>
+    <%= button_to "Ship", ship_transfer_order_path(@transfer_order), method: :post, data: { turbo_confirm: "Ship this transfer? Origin stock will decrease." }, class: "inline-flex items-center rounded-sm bg-teal-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-teal-500" %>
+  <% end %>
+  <% if @transfer_order.shipped? %>
+    <%= button_to "Receive", receive_transfer_order_path(@transfer_order), method: :post, data: { turbo_confirm: "Receive this transfer? Destination stock will increase." }, class: "inline-flex items-center rounded-sm bg-teal-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-teal-500" %>
+  <% end %>
+<% end %>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+  <div class="lg:col-span-2 space-y-6">
+    <%= card do %>
+      <div class="p-5 border-b border-gray-100 flex items-center justify-between">
+        <h2 class="text-base font-semibold text-gray-900">Lines</h2>
+        <%= status_badge(@transfer_order) %>
+      </div>
+      <% if @transfer_order.transfer_order_lines.any? %>
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Item</th>
+              <th class="px-5 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Qty</th>
+              <th class="px-5 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Received</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            <% @transfer_order.transfer_order_lines.each do |line| %>
+              <tr>
+                <td class="px-5 py-3 text-sm text-gray-900">
+                  <p class="font-medium"><%= line.product_variant.display_name %></p>
+                  <p class="text-xs text-gray-500"><%= line.product_variant.sku %></p>
+                </td>
+                <td class="px-5 py-3 text-sm text-gray-600 text-right"><%= line.quantity %></td>
+                <td class="px-5 py-3 text-sm text-gray-600 text-right"><%= line.received_quantity %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% else %>
+        <p class="p-5 text-sm text-gray-500">No lines on this transfer.</p>
+      <% end %>
+    <% end %>
+  </div>
+
+  <div>
+    <%= card do %>
+      <div class="p-5">
+        <h2 class="text-base font-semibold text-gray-900 mb-4">Transfer details</h2>
+        <dl class="space-y-3 text-sm">
+          <div class="flex justify-between"><dt class="text-gray-500">Origin</dt><dd class="font-medium text-gray-900"><%= @transfer_order.origin_store_location.name %></dd></div>
+          <div class="flex justify-between"><dt class="text-gray-500">Destination</dt><dd class="font-medium text-gray-900"><%= @transfer_order.destination_store_location.name %></dd></div>
+          <div class="flex justify-between"><dt class="text-gray-500">Requested</dt><dd class="font-medium text-gray-900"><%= @transfer_order.requested_at ? l(@transfer_order.requested_at, format: :short) : "—" %></dd></div>
+          <div class="flex justify-between"><dt class="text-gray-500">Created by</dt><dd class="font-medium text-gray-900"><%= @transfer_order.created_by_user&.name || "—" %></dd></div>
+          <div class="flex justify-between"><dt class="text-gray-500">Status</dt><dd><%= status_badge(@transfer_order) %></dd></div>
+        </dl>
+      </div>
+    <% end %>
+  </div>
+</div>

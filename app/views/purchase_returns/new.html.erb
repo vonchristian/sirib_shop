@@ -1,0 +1,57 @@
+<% content_for :title, "New purchase return" %>
+
+<%= page_header "New purchase return", subtitle: "Record a return to a supplier" do %>
+  <%= link_to "Back", purchase_returns_path, class: "text-sm font-medium text-gray-500 hover:text-gray-700" %>
+<% end %>
+
+<%= form_with url: purchase_returns_path, method: :post, local: true, scope: :purchase_return, class: "max-w-2xl" do |f| %>
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div>
+        <%= f.label :purchase_order_id, "Purchase order", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= f.collection_select :purchase_order_id, PurchaseOrder.order(ordered_at: :desc).limit(100), :id, :number, { include_blank: "Select PO" }, class: "w-full rounded-sm border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 text-sm" %>
+      </div>
+      <div>
+        <%= f.label :store_location_id, "Location", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= f.collection_select :store_location_id, StoreLocation.active, :id, :name, { include_blank: "Select location" }, class: "w-full rounded-sm border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 text-sm" %>
+      </div>
+    </div>
+
+    <div>
+      <%= f.label :reason, "Reason", class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= f.text_area :reason, rows: 3, class: "w-full rounded-sm border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 text-sm" %>
+    </div>
+
+    <div>
+      <%= f.label :lines, "Items to return", class: "block text-sm font-medium text-gray-700 mb-2" %>
+      <% if params[:purchase_order_id].present? %>
+        <% po = PurchaseOrder.find_by(id: params[:purchase_order_id]) %>
+        <% if po %>
+          <div class="space-y-2">
+            <% po.purchase_order_lines.each do |line| %>
+              <div class="flex items-center gap-3 bg-gray-50 rounded-sm p-3">
+                <div class="flex-1">
+                  <p class="text-sm font-medium text-gray-900"><%= line.product_variant.display_name %></p>
+                  <p class="text-xs text-gray-500">Ordered <%= line.quantity %> @ <%= money(line.unit_cost_cents) %></p>
+                </div>
+                <input type="hidden" name="purchase_return[lines][][product_variant_id]" value="<%= line.product_variant_id %>">
+                <div class="flex items-center gap-2">
+                  <label class="text-xs text-gray-500">Qty</label>
+                  <input type="number" name="purchase_return[lines][][quantity]" value="<%= line.quantity %>" min="0" step="0.001" class="w-24 rounded-sm border-gray-300 shadow-sm text-sm">
+                  <label class="text-xs text-gray-500">Cost</label>
+                  <input type="text" name="purchase_return[lines][][unit_cost]" value="<%= money_input_value(line.unit_cost_cents) %>" class="w-28 rounded-sm border-gray-300 shadow-sm text-sm">
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+      <% else %>
+        <p class="text-sm text-gray-500">Select a purchase order to populate its lines.</p>
+      <% end %>
+    </div>
+
+    <div class="pt-2">
+      <%= f.submit "Create return", class: "inline-flex items-center rounded-sm bg-teal-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-teal-500" %>
+    </div>
+  </div>
+<% end %>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title><%= content_for(:title) || "CellShop Admin" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= yield :head %>
+    <link rel="icon" href="/icon.png" type="image/png">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body class="bg-gray-50 text-gray-800 antialiased">
+    <div class="min-h-screen lg:flex">
+      <div class="lg:w-64 lg:shrink-0">
+        <div class="hidden lg:block lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto lg:border-r lg:border-gray-200 lg:bg-white">
+          <div class="px-4 py-5">
+            <div class="flex items-center gap-x-3 px-3">
+              <span class="inline-flex items-center justify-center size-9 rounded-xl bg-teal-600 text-white font-bold">CS</span>
+              <div>
+                <p class="text-sm font-semibold text-gray-900 leading-tight">CellShop Admin</p>
+                <p class="text-xs text-gray-500">Platform</p>
+              </div>
+            </div>
+            <div class="mt-6 space-y-1">
+              <%= nav_link admin_businesses_path, "Businesses", icon: icon(:building) %>
+              <%= nav_link admin_admin_users_path, "Admin Users", icon: icon(:users) %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex-1 min-w-0 flex flex-col">
+        <div class="sticky top-0 z-40 bg-white/80 backdrop-blur border-b border-gray-200">
+          <div class="flex items-center justify-end px-4 sm:px-6 lg:px-8 h-16">
+            <div class="hs-dropdown relative inline-flex">
+              <button type="button" class="hs-dropdown-toggle flex items-center gap-x-2 rounded-full p-1.5 hover:bg-gray-100" data-hs-dropdown-toggle>
+                <span class="inline-flex items-center justify-center size-8 rounded-full bg-teal-100 text-teal-700 font-semibold text-sm"><%= current_admin_user&.name&.first&.upcase %></span>
+                <span class="hidden sm:block text-sm font-medium text-gray-700"><%= current_admin_user&.name %></span>
+                <svg class="size-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" /></svg>
+              </button>
+              <div class="hs-dropdown-menu transition-[opacity,margin] duration-[0.1ms] sm:duration-[150ms] hs-dropdown-open:opacity-100 opacity-0 hidden min-w-60 z-[60] bg-white shadow-xl rounded-xl border border-gray-200 mt-2" data-hs-dropdown-menu>
+                <div class="px-4 py-3 border-b border-gray-100">
+                  <p class="text-sm font-medium text-gray-900"><%= current_admin_user&.name %></p>
+                  <p class="text-xs text-gray-500 mt-0.5"><%= current_admin_user&.email %></p>
+                </div>
+                <div class="py-1">
+                  <%= link_to logout_path, data: { turbo_method: :delete }, class: "flex items-center gap-x-2.5 px-4 py-2 text-sm text-rose-600 hover:bg-gray-50" do %>
+                    Sign out
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <main class="flex-1 w-full px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
+          <div class="max-w-7xl mx-auto">
+            <%= render "layouts/flashes" %>
+            <%= yield %>
+          </div>
+        </main>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,77 @@
+<% content_for :title, "Dashboard" %>
+
+<%= page_header "Dashboard",
+                subtitle: "Overview for #{current_business.name} as of #{l Time.current, format: :long}" %>
+
+<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
+  <% stats = [
+    { label: "Sales today", value: money(@stats[:today_sales_cents]), icon: icon(:receipt), tint: "bg-teal-50 text-teal-700" },
+    { label: "Open orders", value: @stats[:open_orders], icon: icon(:cart), tint: "bg-sky-50 text-sky-700" },
+    { label: "Low stock items", value: @stats[:low_stock], icon: icon(:cube), tint: "bg-amber-50 text-amber-700" },
+    { label: "Open work orders", value: @stats[:open_work_orders], icon: icon(:wrench), tint: "bg-violet-50 text-violet-700" },
+    { label: "Open cash sessions", value: @stats[:open_cash_sessions], icon: icon(:cash), tint: "bg-emerald-50 text-emerald-700" },
+    { label: "Receivable POs", value: @stats[:receivable_purchase_orders], icon: icon(:truck), tint: "bg-indigo-50 text-indigo-700" }
+  ] %>
+  <% stats.each do |s| %>
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
+      <div class="flex items-center justify-between">
+        <span class="inline-flex items-center justify-center size-10 rounded-sm <%= s[:tint] %>"><%= s[:icon] %></span>
+      </div>
+      <p class="mt-4 text-2xl font-bold text-gray-900"><%= s[:value] %></p>
+      <p class="text-sm text-gray-500 mt-0.5"><%= s[:label] %></p>
+    </div>
+  <% end %>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+  <%= card do %>
+    <div class="p-5 border-b border-gray-100 flex items-center justify-between">
+      <h2 class="text-base font-semibold text-gray-900">Recent sales</h2>
+      <%= link_to "View all", sales_orders_path, class: "text-sm font-medium text-teal-600 hover:text-teal-500" %>
+    </div>
+    <% if @recent_sales.any? %>
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <tbody class="divide-y divide-gray-100">
+            <% @recent_sales.each do |order| %>
+              <tr>
+                <td class="px-5 py-3 text-sm font-medium text-gray-900">
+                  <%= link_to order.number, sales_order_path(order), class: "hover:text-teal-600" %>
+                </td>
+                <td class="px-5 py-3 text-sm text-gray-600"><%= order.customer&.name || "Walk-in" %></td>
+                <td class="px-5 py-3 text-sm font-semibold text-gray-900 text-right"><%= money(order.total_cents) %></td>
+                <td class="px-5 py-3 text-right"><%= status_badge(order) %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <p class="p-5 text-sm text-gray-500">No sales yet.</p>
+    <% end %>
+  <% end %>
+
+  <%= card do %>
+    <div class="p-5 border-b border-gray-100 flex items-center justify-between">
+      <h2 class="text-base font-semibold text-gray-900">Low stock</h2>
+      <%= link_to "Stock", stocks_path, class: "text-sm font-medium text-teal-600 hover:text-teal-500" %>
+    </div>
+    <% if @low_stock_items.any? %>
+      <div class="divide-y divide-gray-100">
+        <% @low_stock_items.each do |stock| %>
+          <div class="px-5 py-3 flex items-center justify-between gap-4">
+            <div class="min-w-0">
+              <p class="text-sm font-medium text-gray-900 truncate"><%= stock.product_variant.display_name %></p>
+              <p class="text-xs text-gray-500"><%= stock.store_location.name %></p>
+            </div>
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold <%= stock.quantity <= 0 ? "bg-rose-50 text-rose-700" : "bg-amber-50 text-amber-700" %>">
+              <%= stock.quantity %> left
+            </span>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="p-5 text-sm text-gray-500">No low stock items.</p>
+    <% end %>
+  <% end %>
+</div>

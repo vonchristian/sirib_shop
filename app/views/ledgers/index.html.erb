@@ -1,0 +1,28 @@
+<% content_for :title, "Ledgers" %>
+
+<%= page_header "Ledgers", subtitle: "Accounting books" do %>
+  <%= link_to "New ledger", new_ledger_path, class: "inline-flex items-center gap-x-2 rounded-sm bg-teal-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-teal-500" %>
+<% end %>
+
+<% if @ledgers.any? %>
+  <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+    <% @ledgers.each do |ledger| %>
+      <%= link_to ledger_path(ledger), class: "bg-white rounded-xl border border-gray-200 shadow-sm p-5 hover:border-teal-300 hover:shadow" do %>
+        <div class="flex items-start justify-between">
+          <div>
+            <p class="text-base font-semibold text-gray-900"><%= ledger.name %></p>
+            <p class="text-xs text-gray-500 mt-0.5"><%= ledger.code %></p>
+          </div>
+          <%= status_badge(ledger) %>
+        </div>
+        <div class="mt-4 text-sm text-gray-600">
+          <%= ledger.accounts.count %> accounts · <%= ledger.journal_entries.count %> entries
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+<% else %>
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-10 text-center">
+    <p class="text-sm text-gray-500">No ledgers yet.</p>
+  </div>
+<% end %>

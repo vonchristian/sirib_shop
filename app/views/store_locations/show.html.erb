@@ -1,0 +1,54 @@
+<% content_for :title, @store_location.name %>
+
+<%= page_header @store_location.name, subtitle: @store_location.code do %>
+  <%= link_to "All locations", store_locations_path, class: "text-sm font-medium text-gray-500 hover:text-gray-700" %>
+  <%= link_to "Edit", edit_store_location_path(@store_location), class: "inline-flex items-center rounded-sm border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50" %>
+<% end %>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+  <div class="lg:col-span-2">
+    <%= card do %>
+      <div class="p-5 border-b border-gray-100 flex items-center justify-between">
+        <h2 class="text-base font-semibold text-gray-900">Stock at this location</h2>
+        <%= status_badge(@store_location) %>
+      </div>
+      <% if @store_location.stocks.includes(:product_variant).any? %>
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Item</th>
+              <th class="px-5 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Qty</th>
+              <th class="px-5 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Reserved</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            <% @store_location.stocks.includes(:product_variant).each do |stock| %>
+              <tr>
+                <td class="px-5 py-3 text-sm font-medium text-gray-900"><%= stock.product_variant.display_name %></td>
+                <td class="px-5 py-3 text-sm text-gray-600 text-right"><%= stock.quantity %></td>
+                <td class="px-5 py-3 text-sm text-gray-600 text-right"><%= stock.reserved_quantity %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% else %>
+        <p class="p-5 text-sm text-gray-500">No stock at this location.</p>
+      <% end %>
+    <% end %>
+  </div>
+
+  <div>
+    <%= card do %>
+      <div class="p-5">
+        <h2 class="text-base font-semibold text-gray-900 mb-4">Location details</h2>
+        <dl class="space-y-3 text-sm">
+          <div class="flex justify-between"><dt class="text-gray-500">Code</dt><dd class="font-medium text-gray-900"><%= @store_location.code %></dd></div>
+          <div class="flex justify-between"><dt class="text-gray-500">Type</dt><dd class="font-medium text-gray-900"><%= enum_label(@store_location, :location_type) %></dd></div>
+          <div class="flex justify-between"><dt class="text-gray-500">Address</dt><dd class="font-medium text-gray-900 max-w-[180px] text-right"><%= @store_location.address %></dd></div>
+          <div class="flex justify-between"><dt class="text-gray-500">Main</dt><dd class="font-medium text-gray-900"><%= @store_location.is_main? ? "Yes" : "No" %></dd></div>
+          <div class="flex justify-between"><dt class="text-gray-500">Status</dt><dd><%= status_badge(@store_location) %></dd></div>
+        </dl>
+      </div>
+    <% end %>
+  </div>
+</div>

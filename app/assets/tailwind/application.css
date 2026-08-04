@@ -1,1 +1,7 @@
 @import "tailwindcss";
+
+/* Preline UI (vendored, no npm)
+   - @source: scan the vendored Preline JS so classes it injects at runtime compile
+   - variants.css: Preline Tailwind v4 custom variants (hs-*) */
+@source "./vendor/javascript/preline.js";
+@import "../../../vendor/preline/variants.css";

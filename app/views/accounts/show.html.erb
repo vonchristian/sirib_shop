@@ -1,0 +1,60 @@
+<% content_for :title, @account.name %>
+
+<%= page_header "#{@account.code} · #{@account.name}", subtitle: "#{@ledger.name} · #{enum_label(@account, :account_type)}" do %>
+  <%= link_to "Back to ledger", ledger_path(@ledger), class: "text-sm font-medium text-gray-500 hover:text-gray-700" %>
+  <%= link_to "Edit", edit_ledger_account_path(@ledger, @account), class: "inline-flex items-center rounded-sm border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50" %>
+<% end %>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+  <div class="lg:col-span-2">
+    <%= card do %>
+      <div class="p-5 border-b border-gray-100 flex items-center justify-between">
+        <h2 class="text-base font-semibold text-gray-900">Journal lines</h2>
+        <%= status_badge(@account) %>
+      </div>
+      <% if @account.journal_lines.any? %>
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Entry</th>
+              <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</th>
+              <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Description</th>
+              <th class="px-5 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Debit</th>
+              <th class="px-5 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Credit</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            <% @account.journal_lines.includes(:journal_entry).order("journal_entries.posted_at DESC").each do |line| %>
+              <tr>
+                <td class="px-5 py-3 text-sm font-mono text-gray-600">
+                  <%= link_to line.journal_entry.entry_number, journal_entry_path(line.journal_entry), class: "hover:text-teal-600" %>
+                </td>
+                <td class="px-5 py-3 text-sm text-gray-600"><%= l line.journal_entry.posted_at, format: :short %></td>
+                <td class="px-5 py-3 text-sm text-gray-600 max-w-xs truncate"><%= line.journal_entry.description %></td>
+                <td class="px-5 py-3 text-sm text-gray-900 text-right"><%= money(line.debit_cents) %></td>
+                <td class="px-5 py-3 text-sm text-gray-900 text-right"><%= money(line.credit_cents) %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% else %>
+        <p class="p-5 text-sm text-gray-500">No journal lines for this account.</p>
+      <% end %>
+    <% end %>
+  </div>
+
+  <div>
+    <%= card do %>
+      <div class="p-5">
+        <h2 class="text-base font-semibold text-gray-900 mb-4">Account details</h2>
+        <dl class="space-y-3 text-sm">
+          <div class="flex justify-between"><dt class="text-gray-500">Code</dt><dd class="font-medium text-gray-900"><%= @account.code %></dd></div>
+          <div class="flex justify-between"><dt class="text-gray-500">Type</dt><dd class="font-medium text-gray-900"><%= enum_label(@account, :account_type) %></dd></div>
+          <div class="flex justify-between"><dt class="text-gray-500">Normal balance</dt><dd class="font-medium text-gray-900"><%= enum_label(@account, :normal_balance) %></dd></div>
+          <div class="flex justify-between"><dt class="text-gray-500">Parent</dt><dd class="font-medium text-gray-900"><%= @account.parent&.name || "—" %></dd></div>
+          <div class="flex justify-between"><dt class="text-gray-500">Status</dt><dd><%= status_badge(@account) %></dd></div>
+        </dl>
+      </div>
+    <% end %>
+  </div>
+</div>
